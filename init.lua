@@ -1,6 +1,6 @@
 require "custom.options"
-require "custom.mapping"
 require "plugins"
+require "custom.mapping"
 require "custom.colorscheme"
 require "custom.autocmd"
 

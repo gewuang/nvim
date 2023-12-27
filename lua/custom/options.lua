@@ -53,3 +53,8 @@ vim.cmd [[set formatoptions-=cro]] -- TODO: this doesn't seem to work
 --   " set fillchars+=vert:│
 --   highlight Comment guifg=#ff0000
 -- ]]
+
+-- Remap space as leader key
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+

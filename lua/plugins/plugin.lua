@@ -60,6 +60,22 @@ return {
             require("plugins.config.nvim-tree")
         end,
     },
+    {
+        "echasnovski/mini.pairs",
+        event = "VeryLazy",
+        version = '*',
+        config = function()
+            require('mini.pairs').setup()
+        end,
+    },
+    -- {
+    --     "echasnovski/mini.animate",
+    --     event = "VeryLazy",
+    --     version = '*',
+    --     config = function()
+    --         require('mini.animate').setup()
+    --     end,
+    -- },
 
     -- 启动时间
     {
@@ -543,9 +559,17 @@ return {
             { "folke/neodev.nvim",  opts = {} },
             "mason.nvim",
             "williamboman/mason-lspconfig.nvim",
+            "nvimtools/none-ls.nvim",
         },
         config = function()
-            require("plugins/config/lspconfig")
+            require("plugins.config.lspconfig")
+        end,
+    },
+    {
+        "ray-x/lsp_signature.nvim",
+        lazy = false,
+        config = function()
+            require("plugins.config.lsp_signature")
         end,
     },
     -- TODO: go的工具集,需要探索
@@ -632,6 +656,245 @@ return {
                 callback = function()
                     vim.b.miniindentscope_disable = true
                 end,
+            })
+        end,
+    },
+
+    {
+        "goolord/alpha-nvim",
+        event = "VimEnter",
+        enabled = true,
+        init = false,
+        opts = function()
+            local dashboard = require("alpha.themes.dashboard")
+            local logo = [[
+                         trt
+                          tiit
+                            cst             ttrrrt
+                   t        iactttttttrricsaaaasciirt  tt
+                 tt      triaacrricsaaaaaaaaaaasscciiiri  rtr
+             ttttitttttriicaaaaaaaaaaaaaaaaaaait    trr  rssc
+         ttrrrrriscsaaaaaaaaaaaaaaaaaaaaaaaaaaascccscrrisaaai
+                rssaaaaaaaaaaaasaaaaassaaaaaaaaaaaaaaaaaaaast
+    t         trcaaaaaaaaaaaaaaaasaaaassaaaaaaaaaaaaaaaaaast
+    rciiiiiicsaaaaaaaasaaaaaaaaaaassaaasaaaaaaaaaaaaaaaaaacccciit
+    rsaaaaaassssssssssaaaaaaaassaaaassasaaaaaaaaaaaaaaaaaaaaaaasit
+     tisaaaaaaaaaaaaaaaaaaaaaarrsaaaaaacssaaaaaaaaaaaaaaaaaaaaaaasi
+       rcaaaaaaaaaaaaaaaaaaaasttcaaaaasaaasssaaaaaaaaaaaaaascirrt
+     rsaaaaaaaaaaaaaaaasaaaaai  rcaaasaaaaaaaaacaaaaaaaaacrrrrt
+   tcciriaaaaaaaaaaaaasaaassc   rraaaaaaaaaaaastcaaaaaaaactttt
+   t    iaaaaaaaaaaaaasaasti     icaaaaaaaaaaar tsaaaaaaasr  tt
+        iaaaaaaaaaaaaassi tttt   tcaaaaaaaaaastt tcaaaaaaait
+        rsaaaaaaaaaaaast  ttrrrrrrtcaacsaaaaasrttttaaaaaaaascit
+         iiaaaaaaaaaaaattriirrrrtt  cacsirccsascciisaaassirt
+           tisaaaaaaassc        tt triit     ttt ttcsacrt
+             rcirttisc tt          t                cir
+             itttrir r  ttt                      tttir
+             trt ttttt tt              tt          rit
+               trrrtt  ttt                      trrt
+                   ttttttrrrrrt          tttrrrrt
+                             rct    trrrrrt
+         ]]
+
+            dashboard.section.header.val = vim.split(logo, "\n")
+            -- stylua: ignore
+            dashboard.section.buttons.val = {
+                dashboard.button("f", " " .. " Find file", "<cmd> Telescope find_files <cr>"),
+                dashboard.button("n", " " .. " New file", "<cmd> ene <BAR> startinsert <cr>"),
+                dashboard.button("r", " " .. " Recent files", "<cmd> Telescope oldfiles <cr>"),
+                dashboard.button("g", " " .. " Find text", "<cmd> Telescope live_grep <cr>"),
+                dashboard.button("c", " " .. " Config",
+                    "<cmd> lua require('lazyvim.util').telescope.config_files()() <cr>"),
+                dashboard.button("s", " " .. " Restore Session", [[<cmd> lua require("persistence").load() <cr>]]),
+                dashboard.button("x", " " .. " Lazy Extras", "<cmd> LazyExtras <cr>"),
+                dashboard.button("l", "󰒲 " .. " Lazy", "<cmd> Lazy <cr>"),
+                dashboard.button("q", " " .. " Quit", "<cmd> qa <cr>"),
+            }
+            for _, button in ipairs(dashboard.section.buttons.val) do
+                button.opts.hl = "AlphaButtons"
+                button.opts.hl_shortcut = "AlphaShortcut"
+            end
+            dashboard.section.header.opts.hl = "AlphaHeader"
+            dashboard.section.buttons.opts.hl = "AlphaButtons"
+            dashboard.section.footer.opts.hl = "AlphaFooter"
+            dashboard.opts.layout[1].val = 1
+            return dashboard
+        end,
+        config = function(_, dashboard)
+            -- close Lazy and re-open when the dashboard is ready
+            if vim.o.filetype == "lazy" then
+                vim.cmd.close()
+                vim.api.nvim_create_autocmd("User", {
+                    once = true,
+                    pattern = "AlphaReady",
+                    callback = function()
+                        require("lazy").show()
+                    end,
+                })
+            end
+
+            require("alpha").setup(dashboard.opts)
+
+            vim.api.nvim_create_autocmd("User", {
+                once = true,
+                pattern = "LazyVimStarted",
+                callback = function()
+                    local stats = require("lazy").stats()
+                    local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+                    dashboard.section.footer.val = "⚡ Neovim loaded "
+                        .. stats.loaded
+                        .. "/"
+                        .. stats.count
+                        .. " plugins in "
+                        .. ms
+                        .. "ms"
+                    pcall(vim.cmd.AlphaRedraw)
+                end,
+            })
+        end,
+    },
+
+    {
+        "folke/todo-comments.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        lazy = false,
+        config = function()
+            require("plugins.config.todocomments")
+        end,
+    },
+    {
+        "akinsho/toggleterm.nvim",
+        lazy = false,
+        version = "*",
+        config = function()
+            require("plugins.config.toggleterm")
+        end,
+    },
+    -- code-action
+    {
+        "kosayoda/nvim-lightbulb",
+        lazy = false,
+        config = function()
+            require("plugins.config.lightbulb")
+        end,
+    },
+    -- 查看函数调用链
+    {
+        "ldelossa/litee.nvim",
+        lazy = false,
+        config = function()
+            require("litee.lib").setup({
+                tree = {
+                    icon_set = "codicons",
+                },
+                panel = {
+                    orientation = "right",
+                    panel_size = 30,
+                },
+            })
+        end,
+    },
+    {
+        "ldelossa/litee-calltree.nvim",
+        lazy = false,
+        config = function()
+            require("plugins.config.litee")
+        end,
+    },
+    -- 搜索替换插件
+    {
+        "nvim-pack/nvim-spectre",
+        lazy = false,
+        config = function()
+            require("plugins.config.spectre")
+        end,
+    },
+
+    {
+        "chentoast/marks.nvim",
+        lazy = false,
+        config = function()
+            require("marks").setup {
+                default_mappings = true,
+                -- which builtin marks to show. default {}
+                -- builtin_marks = { ".", "<", ">", "^" },
+                -- whether movements cycle back to the beginning/end of buffer. default true
+                cyclic = true,
+                -- whether the shada file is updated after modifying uppercase marks. default false
+                force_write_shada = false,
+                -- how often (in ms) to redraw signs/recompute mark positions.
+                -- higher values will have better performance but may cause visual lag,
+                -- while lower values may cause performance penalties. default 150.
+                refresh_interval = 250,
+                -- sign priorities for each type of mark - builtin marks, uppercase marks, lowercase
+                -- marks, and bookmarks.
+                -- can be either a table with all/none of the keys, or a single number, in which case
+                -- the priority applies to all marks.
+                -- default 10.
+                sign_priority = { lower = 10, upper = 15, builtin = 8, bookmark = 20 },
+                -- disables mark tracking for specific filetypes. default {}
+                excluded_filetypes = {},
+                -- marks.nvim allows you to configure up to 10 bookmark groups, each with its own
+                -- sign/virttext. Bookmarks can be used to group together positions and quickly move
+                -- across multiple buffers. default sign is '!@#$%^&*()' (from 0 to 9), and
+                -- default virt_text is "".
+                bookmark_0 = {
+                    sign = "⚑",
+                    virt_text = "hello world",
+                    -- explicitly prompt for a virtual line annotation when setting a bookmark from this group.
+                    -- defaults to false.
+                    annotate = false,
+                },
+                mappings = {},
+            }
+        end,
+    },
+    {
+        "folke/trouble.nvim",
+        lazy = false,
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        opts = {
+            -- your configuration comes here
+            -- or leave it empty to use the default settings
+            -- refer to the configuration section below
+        },
+    },
+    {
+        "ahmedkhalf/project.nvim",
+        lazy = false,
+        config = function()
+            require("plugins.config.project")
+        end,
+    },
+
+    {
+        -- "jose-elias-alvarez/null-ls.nvim",
+        "nvimtools/none-ls.nvim",
+        lazy = false,
+        config = function()
+            require("plugins.config.null-ls")
+        end,
+    },
+    {
+        "nvimtools/none-ls.nvim",
+        optional = true,
+        lazy = false,
+        dependencies = {
+            {
+                "williamboman/mason.nvim",
+                opts = function(_, opts)
+                    opts.ensure_installed = opts.ensure_installed or {}
+                    vim.list_extend(opts.ensure_installed, { "gomodifytags", "impl" })
+                end,
+            },
+        },
+        opts = function(_, opts)
+            local nls = require("null-ls")
+            opts.sources = vim.list_extend(opts.sources or {}, {
+                nls.builtins.code_actions.gomodifytags,
+                nls.builtins.code_actions.impl,
+                nls.builtins.formatting.goimports,
+                nls.builtins.formatting.gofumpt,
             })
         end,
     },
