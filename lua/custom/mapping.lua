@@ -6,6 +6,7 @@ local term_opts = { silent = true }
 
 -- Shorten function name
 local map = vim.api.nvim_set_keymap
+local keymap = vim.keymap.set
 
 
 -- Remap space as leader key
@@ -22,7 +23,7 @@ vim.g.maplocalleader = " "
 --   command_mode = "c",
 
 ----------------------------------------
-            -- Normal --
+-- Normal --
 ----------------------------------------
 -- Better window navigation
 map("n", "<C-h>", "<C-w>h", opts)
@@ -62,21 +63,85 @@ map("n", "<leader>a", ":NvimTreeToggle<CR>", opts)
 map("n", "<esc>", "<cmd>noh<cr>", { desc = "Escape and clear hlsearch" })
 
 -- telescope
--- map('n', '<leader>ff', builtin.find_files, opt) 
--- map('n', '<leader>fg', builtin.live_grep, opt) 
--- map('n', '<leader>fb', builtin.buffers, opt)
--- map('n', '<leader>fh', builtin.help_tags, opt)
-map( "n", "<leader>F", "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", { desc = "Find Document Symbols" })
-map( "n", "<C-p>", "<cmd>Telescope find_files<CR>", { desc = "Find file" })
-map( "n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
-map( "n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Project grep" })
-map( "n", "<leader>fb", "<cmd>Telescope file_browser<CR>", { desc = "File browser" })
-map( "n", "bu", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", { desc = "Buffers" })
+map('n', '<leader>fp', "<cmd> Telescope projects <CR>", opts)
+keymap('n', '<leader>fb', require('telescope.builtin').buffers, opts)
+keymap('n', '<leader>fh', require('telescope.builtin').help_tags, opts)
+map("n", "<leader>F", "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>",
+    { desc = "Find Document Symbols" })
+map("n", "<C-p>", "<cmd>Telescope find_files<CR>", { desc = "Find file" })
+map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
+map("n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Project grep" })
+map("n", "<leader>fb", "<cmd>Telescope file_browser<CR>", { desc = "File browser" })
+map("n", "bu", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", { desc = "Buffers" })
 
-map( "n", "<leader>ff", "<cmd>lua vim.lsp.buf.format()<cr>", { desc = "Format" })
+keymap("n", "ag", function()
+    require('telescope.builtin').grep_string({ word_match = "-w" })
+end, opts)
+keymap("v", "ag", function()
+    vim.cmd.normal('"fy')
+    require('telescope.builtin').grep_string({ search = vim.fn.getreg('"f') })
+end, opts)
 
+
+map("n", "cc", "<cmd>botright copen<cr>", { desc = "Quickfix List" })
+map("n", "cl", "<cmd>cclose<cr>", { desc = "Quickfix List" })
+
+-- 格式化
+map("n", "<leader>ff", "<cmd>lua vim.lsp.buf.format()<cr>", { desc = "Format" })
+
+map("n", "<leader>in", "<cmd>lua vim.lsp.buf.incoming_calls()<cr>", { desc = "list calls" })
+
+keymap("n", "<leader>L", function()
+    require("spectre").open()
+end, { desc = "Open Spectre" })
+
+keymap("n", "<leader>w", function()
+    require("spectre").open_visual { select_word = true }
+end, { desc = "Search current word" })
+
+keymap("n", "<leader>lp", function()
+    require("spectre").open_file_search { select_word = true }
+end, { desc = "Search on current file" })
+
+
+-- diagnostic
+local diagnostic_goto = function(next, severity)
+  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+  severity = severity and vim.diagnostic.severity[severity] or nil
+  return function()
+    go({ severity = severity })
+  end
+end
+keymap("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
+keymap("n", "]d", diagnostic_goto(true), { desc = "Next Diagnostic" })
+keymap("n", "[d", diagnostic_goto(false), { desc = "Prev Diagnostic" })
+keymap("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next Error" })
+keymap("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Prev Error" })
+keymap("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
+keymap("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Prev Warning" })
+
+
+------ mark
+-- mx              Set mark x
+-- m,              Set the next available alphabetical (lowercase) mark
+-- m;              Toggle the next available mark at the current line
+-- dmx             Delete mark x
+-- dm-             Delete all marks on the current line
+-- dm<space>       Delete all marks in the current buffer
+-- m]              Move to next mark
+-- m[              Move to previous mark
+-- m:              Preview mark. This will prompt you for a specific mark to
+--                 preview; press <cr> to preview the next mark.
+--
+-- m[0-9]          Add a bookmark from bookmark group[0-9].
+-- dm[0-9]         Delete all bookmarks from bookmark group[0-9].
+-- m}              Move to the next bookmark having the same type as the bookmark under
+--                 the cursor. Works across buffers.
+-- m{              Move to the previous bookmark having the same type as the bookmark under
+--                 the cursor. Works across buffers.
+-- dm=             Delete the bookmark under the cursor.
 ----------------------------------------
-            -- Insert --
+-- Insert --
 ----------------------------------------
 -- Press jk fast to enter
 -- map("i", "jk", "<ESC>", opts)
@@ -90,7 +155,7 @@ map("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", opts)
 map("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", opts)
 
 ----------------------------------------
-            -- Visual --
+-- Visual --
 ----------------------------------------
 -- Stay in indent mode
 map("v", "<", "<gv", opts)
@@ -109,7 +174,7 @@ map("v", "<A-j>", ":m '>+1<cr>gv=gv", opts)
 map("v", "<A-k>", ":m '<-2<cr>gv=gv", opts)
 
 ----------------------------------------
-            -- Visual Block --
+-- Visual Block --
 ----------------------------------------
 -- Move text up and down
 -- map("x", "J", ":move '>+1<CR>gv-gv", opts)
@@ -118,7 +183,7 @@ map("v", "<A-k>", ":m '<-2<cr>gv=gv", opts)
 -- map("x", "<A-k>", ":move '<-2<CR>gv-gv", opts)
 
 ----------------------------------------
-            -- Terminal --
+-- Terminal --
 ----------------------------------------
 -- Better terminal navigation
 map("t", "<C-h>", "<C-\\><C-N><C-w>h", term_opts)
