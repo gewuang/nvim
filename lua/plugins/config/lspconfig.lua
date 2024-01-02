@@ -1,5 +1,14 @@
 -- Setup language servers.
 local lspconfig = require('lspconfig')
+-- local win = require('lspconfig.ui.windows')
+-- local _default_opts = win.default_opts
+--
+-- win.default_opts = function(options)
+--   local opts = _default_opts(options)
+--   opts.border = 'single'
+--   return opts
+-- end
+require('lspconfig.ui.windows').default_options.border = 'single'
 
 -- Set up lspconfig.
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -32,7 +41,12 @@ lspconfig.lua_ls.setup {
                 globals = { "vim", "hs" },
             },
             workspace = {
-                checkThirdParty = false,
+                -- checkThirdParty = false,
+                library = {
+                    [vim.fn.expand("$PLUGINS/neodev.nvim/types/nightly")] = true,
+                    [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+                    [vim.fn.stdpath("config") .. "/lua"] = true,
+                },
             },
             completion = {
                 callSnippet = "Replace",
@@ -198,7 +212,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
         vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
         vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+        vim.keymap.set('n', 'gr', "<cmd>Telescope lsp_references<CR>", opts)
         vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
         -- vim.keymap.set('n', '<leader>cd', function()
         --     vim.diagnostic.open_float { border = "rounded" }

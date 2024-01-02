@@ -24,14 +24,22 @@ return {
     },
 
     -- 快速选择
+    -- {
+    --     "gcmt/wildfire.vim",
+    --     keys = "<CR>",
+    -- },
     {
-        "gcmt/wildfire.vim",
-        keys = "<CR>",
-    },
+        "sustech-data/wildfire.nvim",
+        event = "VeryLazy",
+        dependencies = { "nvim-treesitter/nvim-treesitter" },
+        config = function()
+            require("wildfire").setup()
+        end,
 
+    },
     -- 更好看的提示框?
     {
-        'stevearc/dressing.nvim',
+        "stevearc/dressing.nvim",
         opts = {},
         config = function()
             require("plugins.config.dressing")
@@ -39,8 +47,8 @@ return {
     },
 
     -- ?
-    { "folke/neoconf.nvim",    cmd = "Neoconf" },
-    "folke/neodev.nvim",
+    -- { "folke/neoconf.nvim",    cmd = "Neoconf" },
+    -- "folke/neodev.nvim",
 
     -- 目录树(需要配置
     -- {
@@ -63,9 +71,9 @@ return {
     {
         "echasnovski/mini.pairs",
         event = "VeryLazy",
-        version = '*',
+        version = "*",
         config = function()
-            require('mini.pairs').setup()
+            require("mini.pairs").setup()
         end,
     },
     -- {
@@ -117,7 +125,7 @@ return {
         lazy = true,
         opts = {
             enable_autocmd = false,
-        }
+        },
     },
     {
         "echasnovski/mini.comment",
@@ -125,15 +133,15 @@ return {
         opts = {
             options = {
                 custom_commentstring = function()
-                    return require("ts_context_commentstring.internal").calculate_commentstring() or vim.bo
-                        .commentstring
+                    return require("ts_context_commentstring.internal").calculate_commentstring()
+                        or vim.bo.commentstring
                 end,
             },
         },
     },
 
     -- 搜索
-    { "Numkil/ag.nvim", lazy = false },
+    { "Numkil/ag.nvim",        lazy = false },
 
     -- 跳转
     {
@@ -256,7 +264,6 @@ return {
         },
     },
 
-
     -- 按键提醒
     -- I have a separate config.mappings file where I require which-key.
     -- With lazy the plugin will be automatically loaded when it is required somewhere
@@ -330,15 +337,14 @@ return {
         end,
     },
 
-
     -- Flash Telescope config
     {
         "nvim-telescope/telescope.nvim",
-        tag = '0.1.5',
+        tag = "0.1.5",
         cmd = "Telescope",
         -- event = "VeryLazy",
         dependencies = {
-            'nvim-lua/plenary.nvim',
+            "nvim-lua/plenary.nvim",
             "tom-anders/telescope-vim-bookmarks.nvim",
             "nvim-telescope/telescope-media-files.nvim",
             "nvim-telescope/telescope-ui-select.nvim",
@@ -352,10 +358,10 @@ return {
 
     -- bufferline
     {
-        'akinsho/bufferline.nvim',
+        "akinsho/bufferline.nvim",
         event = "VeryLazy",
         version = "*",
-        dependencies = 'nvim-tree/nvim-web-devicons',
+        dependencies = "nvim-tree/nvim-web-devicons",
         config = function(_, opts)
             require("bufferline").setup(opts)
         end,
@@ -392,7 +398,7 @@ return {
                             move[name] = function(q, ...)
                                 if vim.wo.diff then
                                     local config = configs.get_module("textobjects.move")
-                                        [name] ---@type table<string,string>
+                                    [name] ---@type table<string,string>
                                     for key, query in pairs(config or {}) do
                                         if q == query and key:find("[%]%[][cC]") then
                                             vim.cmd("normal! " .. key)
@@ -509,7 +515,6 @@ return {
         opts = {},
     },
 
-
     -- cmdline tools and lsp servers
     {
         "williamboman/mason.nvim",
@@ -551,6 +556,23 @@ return {
             end
         end,
     },
+    -- {
+    --     "folke/neodev.nvim",
+    --     lazy = false,
+    --     event = "VeryLazy",
+    --     config = function()
+    --         require("neodev").setup({
+    --             -- add any options here, or leave empty to use the default settings
+    --             --     require("neodev").setup {
+    --             -- Always add neovim plugins into lua_ls library, even if not neovim config
+    --             override = function(root_dir, library)
+    --                 library.enabled = true
+    --                 library.plugins = true
+    --             end,
+    --             -- }
+    --         })
+    --     end,
+    -- },
     {
         "neovim/nvim-lspconfig",
         event = "VeryLazy",
@@ -560,6 +582,7 @@ return {
             "mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "nvimtools/none-ls.nvim",
+            { "antosha417/nvim-lsp-file-operations", config = true },
         },
         config = function()
             require("plugins.config.lspconfig")
@@ -584,8 +607,8 @@ return {
             require("go").setup()
         end,
         event = { "CmdlineEnter" },
-        ft = { "go", 'gomod' },
-        build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+        ft = { "go", "gomod" },
+        build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
     },
     -- 函数列表
     {
@@ -814,7 +837,7 @@ return {
         "chentoast/marks.nvim",
         lazy = false,
         config = function()
-            require("marks").setup {
+            require("marks").setup({
                 default_mappings = true,
                 -- which builtin marks to show. default {}
                 -- builtin_marks = { ".", "<", ">", "^" },
@@ -846,7 +869,7 @@ return {
                     annotate = false,
                 },
                 mappings = {},
-            }
+            })
         end,
     },
     {
@@ -897,5 +920,116 @@ return {
                 nls.builtins.formatting.gofumpt,
             })
         end,
+    },
+
+    -- 翻译软件
+    {
+        "JuanZoran/Trans.nvim",
+        build = function()
+            require("Trans").install()
+        end,
+        keys = {
+            -- 可以换成其他你想映射的键
+            { "<leader>tp", mode = { "n", "x" }, "<Cmd>Translate<CR>", desc = "󰏘 Translate" },
+            -- { "<leader>tp", mode = { "n", "x" }, "<Cmd>TransPlay<CR>", desc = " Auto Play" },
+            -- 目前这个功能的视窗还没有做好，可以在配置里将view.i改成hover
+            { "<leader>ti", "<Cmd>TranslateInput<CR>", desc = " Translate From Input" },
+        },
+        dependencies = { "kkharji/sqlite.lua" },
+        opts = {
+            -- your configuration there
+            --     frontend = {
+            ---@type table frontend options
+            frontend = {
+                ---@class TransFrontendOpts
+                ---@field keymaps table<string, string>
+                default = {
+                    query = "fallback",
+                    border = "rounded",
+                    title = vim.fn.has("nvim-0.9") == 1 and {
+                        { "", "TransTitleRound" },
+                        { " Trans", "TransTitle" },
+                        { "", "TransTitleRound" },
+                    } or nil, -- need nvim-0.9+
+                    auto_play = true,
+                    ---@type {open: string | boolean, close: string | boolean, interval: integer} Hover Window Animation
+                    animation = {
+                        open = "slid", -- 'fold', 'slid'
+                        close = "slid",
+                        interval = 12,
+                    },
+                    timeout = 2000,
+                },
+                ---@class TransHoverOpts : TransFrontendOpts
+                hover = {
+                    ---@type integer Max Width of Hover Window
+                    width = 40,
+                    ---@type integer Max Height of Hover Window
+                    height = 27,
+                    ---@type string -- see: /lua/Trans/style/spinner
+                    spinner = "dots",
+                    ---@type string
+                    fallback_message = "{{notfound}} 翻译超时或没有找到相关的翻译",
+                    auto_resize = true,
+                    split_width = 60,
+                    padding = 10, -- padding for hover window width
+                    keymaps = {
+                        pageup = "[[",
+                        pagedown = "]]",
+                        pin = "<leader>[",
+                        close = "<leader>]",
+                        toggle_entry = "<leader>;",
+                        -- play         = '_', -- Deprecated
+                    },
+                    ---@type string[] auto close events
+                    auto_close_events = {
+                        "InsertEnter",
+                        "CursorMoved",
+                        "BufLeave",
+                    },
+                    ---@type table<string, string[]> order to display translate result
+                    order = {
+                        default = {
+                            "str",
+                            "translation",
+                            "definition",
+                        },
+                        offline = {
+                            "title",
+                            -- "tag",
+                            -- "pos",
+                            -- "exchange",
+                            "translation",
+                            "definition",
+                        },
+                        youdao = {
+                            "title",
+                            "translation",
+                            "definition",
+                            "web",
+                        },
+                    },
+                    icon = {
+                        -- or use emoji
+                        list = "●", -- ● | ○ | ◉ | ◯ | ◇ | ◆ | ▪ | ▫ | ⬤ | 🟢 | 🟡 | 🟣 | 🟤 | 🟠| 🟦 | 🟨 | 🟧 | 🟥 | 🟪 | 🟫 | 🟩 | 🟦
+                        star = "", -- ⭐ | ✴ | ✳ | ✲ | ✱ | ✰ | ★ | ☆ | 🌟 | 🌠 | 🌙 | 🌛 | 🌜 | 🌟 | 🌠 | 🌌 | 🌙 |
+                        notfound = " ", --❔ | ❓ | ❗ | ❕|
+                        yes = "✔", -- ✅ | ✔️ | ☑
+                        no = "", -- ❌ | ❎ | ✖ | ✘ | ✗ |
+                        cell = "■", -- ■  | □ | ▇ | ▏ ▎ ▍ ▌ ▋ ▊ ▉
+                        web = "󰖟", --🌍 | 🌎 | 🌏 | 🌐 |
+                        tag = "",
+                        pos = "",
+                        exchange = "",
+                        definition = "󰗊",
+                        translation = "󰊿",
+                    },
+                },
+            },
+        },
+    },
+    {
+        "Exafunction/codeium.vim",
+        event = "BufEnter",
     },
 }

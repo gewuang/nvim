@@ -5,6 +5,7 @@ local opts = {
     position = 'right',
     relative_width = true,
     width = 20,
+    -- border = 'single',
     auto_close = false,
     show_numbers = false,
     show_relative_numbers = false,

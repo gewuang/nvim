@@ -11,6 +11,7 @@ require('telescope').setup {
                 ["<C-k>"] = actions.move_selection_previous,
                 ["<C-c>"] = actions.close,
                 ["<esc>"] = actions.close,
+                ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
             },
         },
         prompt_prefix = "   ",
