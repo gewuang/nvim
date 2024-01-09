@@ -52,7 +52,10 @@ require('telescope').setup {
             "vendor"
         },
         generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-        path_display = {shorten = 5},
+        path_display = function(opts, path)
+            local tail = require("telescope.utils").path_tail(path)
+            return string.format("%s (%s)", tail, path), { { { 1, #tail }, "Constant" } }
+        end,
         winblend = 0,
         border = {},
         borderchars = {"─", "│", "─", "│", "┌", "┐", "┘", "└"},
@@ -100,3 +103,4 @@ require('telescope').load_extension "ui-select"
 require('telescope').load_extension "file_browser"
 -- require('telescope').load_extension "notify"
 require('telescope').load_extension "project"
+require('telescope').load_extension('fzf')

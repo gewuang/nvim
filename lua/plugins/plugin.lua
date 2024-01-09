@@ -13,13 +13,27 @@ return {
         end,
     },
 
+    -- 配色方案
     { "EdenEast/nightfox.nvim" },
+    { "ray-x/starry.nvim" },
+
     {
         "karb94/neoscroll.nvim",
         lazy = false,
         opt = true,
         config = function()
             require("plugins.config.neoscroll")
+        end,
+    },
+    {
+        "hedyhli/outline.nvim",
+        lazy = true,
+        cmd = { "Outline", "OutlineOpen" },
+        keys = { -- Example mapping to toggle outline
+            { "<leader>l", "<cmd>Outline<CR>", desc = "Toggle outline" },
+        },
+        config = function()
+            require("plugins.config.outline")
         end,
     },
 
@@ -35,7 +49,6 @@ return {
         config = function()
             require("wildfire").setup()
         end,
-
     },
     -- 更好看的提示框?
     {
@@ -141,7 +154,7 @@ return {
     },
 
     -- 搜索
-    { "Numkil/ag.nvim",        lazy = false },
+    { "Numkil/ag.nvim", lazy = false },
 
     -- 跳转
     {
@@ -611,14 +624,14 @@ return {
         build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
     },
     -- 函数列表
-    {
-        "simrat39/symbols-outline.nvim",
-        keys = { { "<leader>l", "<cmd>SymbolsOutline<cr>", desc = "Symbols Outline" } },
-        cmd = "SymbolsOutline",
-        config = function()
-            require("plugins/config/symbols-outline")
-        end,
-    },
+    -- {
+    --     "simrat39/symbols-outline.nvim",
+    --     keys = { { "<leader>l", "<cmd>SymbolsOutline<cr>", desc = "Symbols Outline" } },
+    --     cmd = "SymbolsOutline",
+    --     config = function()
+    --         require("plugins/config/symbols-outline")
+    --     end,
+    -- },
 
     -- indent guides for Neovim
     {
@@ -778,6 +791,12 @@ return {
     },
 
     {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        build =
+        "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
+    },
+
+    {
         "folke/todo-comments.nvim",
         dependencies = { "nvim-lua/plenary.nvim" },
         lazy = false,
@@ -799,6 +818,19 @@ return {
         lazy = false,
         config = function()
             require("plugins.config.lightbulb")
+        end,
+    },
+    -- action preview
+    -- gopls暂时不支持
+    {
+        "aznhe21/actions-preview.nvim",
+        lazy = false,
+        dependencies = {
+            "MunifTanjim/nui.nvim",
+        },
+        config = function()
+            vim.keymap.set({ "v", "n" }, "gf", require("actions-preview").code_actions)
+            require("plugins.config.actions-preview")
         end,
     },
     -- 查看函数调用链
@@ -1031,5 +1063,20 @@ return {
     {
         "Exafunction/codeium.vim",
         event = "BufEnter",
+        config = function()
+            -- Change '<C-g>' here to any keycode you like.
+            vim.keymap.set("i", "<C-q>", function()
+                return vim.fn["codeium#Accept"]()
+            end, { expr = true, silent = true, noremap = true })
+            vim.keymap.set("i", "<c-;>", function()
+                return vim.fn["codeium#CycleCompletions"](1)
+            end, { expr = true, silent = true })
+            vim.keymap.set("i", "<c-,>", function()
+                return vim.fn["codeium#CycleCompletions"](-1)
+            end, { expr = true, silent = true })
+            vim.keymap.set("i", "<c-x>", function()
+                return vim.fn["codeium#Clear"]()
+            end, { expr = true, silent = true })
+        end,
     },
 }

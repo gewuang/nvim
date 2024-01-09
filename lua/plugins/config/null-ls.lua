@@ -6,6 +6,7 @@ local lint = null_ls.builtins.diagnostics
 local ca = null_ls.builtins.code_actions
 
 local sources = {
+    -- 格式化
     formatting.prettier,
     formatting.stylua,
     formatting.shfmt,
@@ -13,11 +14,13 @@ local sources = {
     formatting.golines,
     formatting.goimports_reviser,
 
+    -- code action
     ca.impl,
     ca.gomodifytags,
 
     -- lint.cfn-lint,
     lint.shellcheck,
+    lint.golangci_lint,
 }
 
 local on_attach = function(client, bufnr)

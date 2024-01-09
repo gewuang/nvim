@@ -13,6 +13,8 @@ require('lspconfig.ui.windows').default_options.border = 'single'
 -- Set up lspconfig.
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
+lspconfig.bufls.setup{}
+
 lspconfig.pyright.setup {
     capabilities = capabilities,
 }

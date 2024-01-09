@@ -1,13 +1,12 @@
 local opts = { noremap = true, silent = true }
-
 local term_opts = { silent = true }
 
 -- local builtin = require('telescope.builtin')
+local pickers = require("plugins.user.telescopePickers")
 
 -- Shorten function name
 local map = vim.api.nvim_set_keymap
 local keymap = vim.keymap.set
-
 
 -- Remap space as leader key
 map("", "<Space>", "<Nop>", opts)
@@ -56,32 +55,87 @@ map("n", "<A-k>", "<cmd>m .-2<cr>==", opts)
 -- map("n", "<leader>a", function()
 --     require("neo-tree.command").execute({ toggle = true, dir = Util.root() })
 -- end, opts)
+-- 打开文件浏览
 map("n", "<leader>a", ":NvimTreeToggle<CR>", opts)
+-- 定位到当前文件: NvimTreeFindFile
+
+-- vim.api.nvim_set_keymap('n', '<C-[>', '<C-t>', { noremap = true, silent = true })
 
 -- noh
 -- map("i", "<esc>", "<cmd>noh<cr>", { desc = "Escape and clear hlsearch" })
 map("n", "<esc>", "<cmd>noh<cr>", { desc = "Escape and clear hlsearch" })
 
 -- telescope
-map('n', '<leader>fp', "<cmd> Telescope projects <CR>", opts)
-keymap('n', '<leader>fb', require('telescope.builtin').buffers, opts)
-keymap('n', '<leader>fh', require('telescope.builtin').help_tags, opts)
-map("n", "<leader>F", "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>",
-    { desc = "Find Document Symbols" })
-map("n", "<C-p>", "<cmd>Telescope find_files<CR>", { desc = "Find file" })
-map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
-map("n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Project grep" })
+-- 打开函数列表
+keymap("n", "<leader>F", function()
+    pickers.prettyDocumentSymbols()
+end, opts)
+-- map(
+--     "n",
+--     "<leader>F",
+--     "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>",
+--     { desc = "Find Document Symbols" }
+-- )
+
+-- 打开缓冲区
+keymap("n", "<leader>fb", function()
+    pickers.prettyBuffersPicker()
+end, opts)
+-- keymap("n", "<leader>fb", require("telescope.builtin").buffers, opts)
+
+-- 打开project
+map("n", "<leader>fp", "<cmd> Telescope projects <CR>", opts)
+
+-- 打开help
+keymap("n", "<leader>fh", require("telescope.builtin").help_tags, opts)
+
+-- 打开workspace?
+keymap("n", "<leader>fs", function()
+    pickers.prettyWorkspaceSymbols()
+end, opts)
+
+-- 打开文件
+-- map("n", "<C-p>", "<cmd>Telescope find_files<CR>", { desc = "Find file" })
+keymap("n", "<C-p>", function()
+    pickers.prettyFilesPicker({ picker = "find_files" })
+end, opts)
+
+-- 打开最近打开的文件
+-- map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
+keymap("n", "<leader>fr", function()
+    pickers.prettyFilesPicker({ picker = "oldfiles" })
+end, opts)
+
+keymap("n", "<leader>fg", function()
+    pickers.prettyFilesPicker({ picker = "git_files" })
+end, opts)
+
+-- 搜索
+-- map("n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Project grep" })
+keymap("n", "<leader>fw", function()
+    pickers.prettyGrepPicker({ picker = "live_grep" })
+end, opts)
+
+keymap("n", "<leader>fq", function()
+    pickers.prettyGrepPicker({ picker = "grep_string" })
+end, opts)
+
+-- 文件
 map("n", "<leader>fb", "<cmd>Telescope file_browser<CR>", { desc = "File browser" })
-map("n", "bu", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", { desc = "Buffers" })
+
+-- 缓冲区
+-- map("n", "bu", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", { desc = "Buffers" })
+keymap("n", "bu", function()
+    pickers.prettyBuffersPicker()
+end, opts)
 
 keymap("n", "ag", function()
-    require('telescope.builtin').grep_string({ word_match = "-w" })
+    require("telescope.builtin").grep_string({ word_match = "-w" })
 end, opts)
 keymap("v", "ag", function()
     vim.cmd.normal('"fy')
-    require('telescope.builtin').grep_string({ search = vim.fn.getreg('"f') })
+    require("telescope.builtin").grep_string({ search = vim.fn.getreg('"f') })
 end, opts)
-
 
 map("n", "cc", "<cmd>botright copen<cr>", { desc = "Quickfix List" })
 map("n", "cl", "<cmd>cclose<cr>", { desc = "Quickfix List" })
@@ -91,26 +145,31 @@ map("n", "<leader>ff", "<cmd>lua vim.lsp.buf.format()<cr>", { desc = "Format" })
 
 map("n", "<leader>in", "<cmd>lua vim.lsp.buf.incoming_calls()<cr>", { desc = "list calls" })
 
+-- go.nvim
+map("n", "<leader>gm", "<cmd>GoCmt<cr>", { desc = "comment" })
+map("n", "<leader>gfs", "<cmd>GoFillStruct<cr>", { desc = "go fill struct" })
+map("n", "<leader>ge", "<cmd>GoIfErr<cr>", { desc = "if err" })
+map("n", "<leader>gr", "<cmd>GoRename<cr>", { desc = "rename" })
+
 keymap("n", "<leader>L", function()
     require("spectre").open()
 end, { desc = "Open Spectre" })
 
 keymap("n", "<leader>w", function()
-    require("spectre").open_visual { select_word = true }
+    require("spectre").open_visual({ select_word = true })
 end, { desc = "Search current word" })
 
 keymap("n", "<leader>lp", function()
-    require("spectre").open_file_search { select_word = true }
+    require("spectre").open_file_search({ select_word = true })
 end, { desc = "Search on current file" })
-
 
 -- diagnostic
 local diagnostic_goto = function(next, severity)
-  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
-  severity = severity and vim.diagnostic.severity[severity] or nil
-  return function()
-    go({ severity = severity })
-  end
+    local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+    severity = severity and vim.diagnostic.severity[severity] or nil
+    return function()
+        go({ severity = severity })
+    end
 end
 keymap("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 keymap("n", "]d", diagnostic_goto(true), { desc = "Next Diagnostic" })
@@ -120,6 +179,18 @@ keymap("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Prev Error" })
 keymap("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
 keymap("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Prev Warning" })
 
+-- 关闭语法检查
+local enable = false
+keymap("n", "<leader>ud", function()
+    enable = not enable
+    if enable then
+        vim.diagnostic.disable()
+        print("Disabled code diagnostics")
+    else
+        vim.diagnostic.enable()
+        print("Enabled code diagnostics")
+    end
+end, { desc = "Hidden diagnostic" })
 
 ------ mark
 -- mx              Set mark x
