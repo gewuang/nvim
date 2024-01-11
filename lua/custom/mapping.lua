@@ -150,6 +150,8 @@ map("n", "<leader>gm", "<cmd>GoCmt<cr>", { desc = "comment" })
 map("n", "<leader>gfs", "<cmd>GoFillStruct<cr>", { desc = "go fill struct" })
 map("n", "<leader>ge", "<cmd>GoIfErr<cr>", { desc = "if err" })
 map("n", "<leader>gr", "<cmd>GoRename<cr>", { desc = "rename" })
+map("n", "<leader>gt", "<cmd>GoTestFunc<cr>", { desc = "test func" })
+map("n", "<leader>gat", "<cmd>GoAddTest<cr>", { desc = "add test func" })
 
 keymap("n", "<leader>L", function()
     require("spectre").open()
